@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:collection';
 
 class Node<T> {
   T nodeValue;
@@ -20,51 +21,44 @@ class BinaryTree<T> {
   }
 
   // Insert berdasarkan level order
-  void levelOrderInsertion(T newValue) {
-    Node<T> newNode = Node(newValue);
-    if (root == null) {
-      root = newNode;
-      return;
-    }
-    List<Node<T>> queue = [];
-    queue.add(root!);
+  void levelOrderInsertion(Node<T>? node) {
+    if (node == null) return;
+
+    Queue<Node<T>> queue = Queue<Node<T>>();
+    queue.add(node);
+
     while (queue.isNotEmpty) {
-      Node<T> current = queue.removeAt(0);
-      if (current.left == null) {
-        current.left = newNode;
-        return;
-      } else {
-        queue.add(current.left!);
-      }
-      if (current.right == null) {
-        current.right = newNode;
-        return;
-      } else {
-        queue.add(current.right!);
-      }
+      Node<T> current = queue.removeFirst();
+      stdout.write('${current.nodeValue} ');
+
+      if (current.left != null) queue.add(current.left!);
+      if (current.right != null) queue.add(current.right!);
     }
   }
 
   // Insert berdasarkan target
-  bool insertByTarget(T dataBaru, T target) {
-    Node<T>? nodeTarget = _linearSearch(root, target);
-    if (nodeTarget == null) return false;
-
-    if (nodeTarget.left == null) {
-      nodeTarget.left = Node(dataBaru);
-      return true;
-    } else if (nodeTarget.right == null) {
-      nodeTarget.right = Node(dataBaru);
-      return true;
+  bool insertByTarget(T newData, T target) {
+    Node<T>? targetNode = _linearSearch(root, target);
+    if (targetNode == null) {
+      print("Target $target tidak ditemukan.");
+      return false;
     }
-    return false;
+    if (targetNode.left == null) {
+      targetNode.left = Node<T>(newData);
+      print("Berhasil menambahkan $newData di kiri dari $target");
+      return true;
+    } else if (targetNode.right == null) {
+      targetNode.right = Node<T>(newData);
+      print("Berhasil menambahkan $newData di kanan dari $target");
+      return true;
+    } else {
+      print("Node kiri dan kanan dari $target sudah terisi.");
+      return false;
+    }
   }
-
   Node<T>? _linearSearch(Node<T>? node, T target) {
     if (node == null) return null;
-    if (node.nodeValue == target) {
-      return node;
-    }
+    if (node.nodeValue == target) return node;
     Node<T>? foundNode = _linearSearch(node.left, target);
     if (foundNode != null) return foundNode;
     return _linearSearch(node.right, target);
@@ -177,20 +171,21 @@ void main() {
   print("\nPostOrder traversal: ");
   Btree.printPostOrder(Btree.root);
 
-  print("\nnPreOrder Non-Rekursif: ");
+  print("\nPreOrder Non-Rekursif: ");
   Btree.preOrderNonRekursif(Btree.root);
 
   print("\nInOrder Non-Rekursif: ");
   Btree.inOrderNonRekursif(Btree.root);
 
-  print("\PostOrder Non-Rekursif: ");
+  print("\nPostOrder Non-Rekursif: ");
   Btree.postorderNonRekursif(Btree.root);
 
-  Btree.levelOrderInsertion(7);
-  print('\nPost Order Traversal setelah Level Order: ');
-  Btree.printPostOrder(Btree.root);
+  print('\nLevel Order Insertion: ');
+  Btree.levelOrderInsertion(Btree.root);
 
-  Btree.insertByTarget(6, 3);
-  print("\nPre Order Non-rekursif setelah insertByTarget: ");
-  Btree.preOrderNonRekursif(Btree.root);
+  print("\nTambah node: ");
+  Btree.insertByTarget(6, 4);
+
+  print("\nPre order setelah insertByTarget: ");
+  Btree.printPreorder(Btree.root);
 }
